@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <template th:include="admin/common/header_statics :: header('产品分类')" th:remove="tag"></template>
+    <link rel="stylesheet" th:href="@{/static/css/admin.css}"/>
+</head>
+<body class="hold-transition skin-yellow sidebar-mini">
+<!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器，奎爷 暂不支持。 请 <a href="http://browsehappy.com/" target="_blank">升级浏览器</a>
+    以获得更好的体验！</p>
+<![endif]-->
+<!-- Site wrapper -->
+<div class="wrapper">
+    <header th:include="admin/common/header_html"></header>
+    <!-- =============================================== -->
+    <aside th:include="admin/common/aside"></aside>
+    <!-- =============================================== -->
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                产品类别管理
+                <small>产品的类别设置，可以设置无限个子集</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li>产品管理</li>
+                <li class="active">产品类别管理</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section id="content" class="content" v-cloak>
+            <treegrid
+                    domain="productCategory"
+                    :instance="crudgrid"
+                    :root="sidebar.root"
+                    :columns="crudgrid.columns"
+                    :form-data="formData"
+                    @refresh="refresh"
+            >
+                <template slot="form-body" scope="props">
+                    <div class="form-group">
+                        <label>上级分类：</label>
+                        <combobox
+                                class="form-control"
+                                :root="{name: '所有类别'}"
+                                :options="parent.data"
+                                v-model="props.form.parent.id">
+                        </combobox>
+                    </div>
+                    <div class="form-group">
+                        <label>名称：</label>
+                        <input type="text" class="form-control" required v-model="props.form.name" placeholder="输入模块名称">
+                    </div>
+                    <div class="form-group">
+                        <label>备注：</label>
+                        <input type="text" class="form-control" v-model="props.form.remark" placeholder="输入备注">
+                    </div>
+                    <div class="form-group">
+                        <label>规格：</label>
+                        <div>
+                            <button type="button" class="btn btn-info" @click="addStandard"> <i class="fa fa-plus"></i> 增加规格</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="dataTables_wrapper">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <form class="form-horizontal">
+                                        <draggable v-model="props.form.productStandards" :options="{handle:'.draggable-handler'}">
+                                            <div v-for="row in props.form.productStandards">
+                                                <div class="row form-group">
+                                                    <div class="col-xs-8">
+                                                        <input type="text" class="form-control" required v-model="row.name" placeholder="输入规格名称">
+                                                    </div>
+                                                    <div class="col-xs-4" style="padding-top: 5px;">
+                                                        <a title="拖拽移动" class="btn btn-xs bg-purple margin-r-5 draggable-handler">
+                                                            <i class="fa fa-arrows"></i>
+                                                        </a>
+                                                        <a title="添加条目" class="btn btn-xs bg-green margin-r-5" @click="addItem(row)">
+                                                            <i class="fa fa-plus"></i>
+                                                        </a>
+                                                        <a title="删除" class="btn btn-xs bg-red" @click="deleteStandard(props.form.productStandards, row, $event)">
+                                                            <i class="fa fa-trash"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <draggable v-model="row.items" :options="{handle:'.item-draggable-handler'}">
+                                                    <div class="row form-group" v-for="item in row.items">
+                                                        <div class="col-xs-8">
+                                                            <div class="row">
+                                                                <label class="col-xs-4 control-label">条目：</label>
+                                                                <div class="col-xs-8">
+                                                                    <input type="text" class="form-control" required v-model="item.name" placeholder="输入条目名称">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xs-4" style="padding-top: 5px;">
+                                                            <a title="拖拽移动" class="btn btn-xs bg-purple margin-r-5 item-draggable-handler">
+                                                                <i class="fa fa-arrows"></i>
+                                                            </a>
+                                                            <a title="删除" class="btn btn-xs bg-red" @click="deleteItem(row, item, $event)">
+                                                                <i class="fa fa-trash"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </draggable>
+                                            </div>
+                                        </draggable>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </treegrid>
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+    <footer th:include="admin/common/footer_html"></footer>
+</div>
+<!-- ./wrapper -->
+<footer th:include="admin/common/footer_statics"></footer>
+<script th:src="@{/static/js/modules/product/productCategoryList.js}"></script>
+</body>
+</html>

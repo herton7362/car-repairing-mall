@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <template th:include="wechat/common/header_statics :: header('鼎骏医车 - 钣金喷漆')" th:remove="tag"></template>
+    <link rel="stylesheet" th:href="@{/static/css/wechat.css}"/>
+</head>
+<!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+<body class="layout-top-nav skin-yellow h5-layout" style="height: auto; min-height: 100%;">
+<div id="content"  class="wrapper orderform-new sheet-metal-paint" style="height: auto; min-height: 100%;" v-cloak>
+
+    <!-- Full Width Column -->
+    <div class="content-wrapper">
+        <div class="container">
+            <!-- Main content -->
+            <section class="content">
+                <div>
+                    <div class="title">您当前购买喷漆服务的车型</div>
+                    <div>
+                        <span class="card weui-badge selected">  {{userVehicle.vehicleCategory.name}}</span>
+                        <a href="#content" title="修改" class="btn btn-xs" @click="myVehicleOpen">
+                            <i class="iconfont icon-edit"></i>
+                        </a>
+                    </div>
+                    <p class="info">请您确认车型，如果到店车型与所选车型不符，门店有权拒绝服务或要求您补车型差价。</p>
+                </div>
+                <div>
+                    <div class="title">选择油漆产品</div>
+                    <div>
+                        <span class="card weui-badge"
+                              :class="{selected:selectedPaint && selectedPaint.id === paint.id}"
+                              v-for="paint in userVehicle.vehicleCategory.paints"
+                              @click="selectPaint(paint)">
+                            {{paint.name}}
+                            <br>
+                            ￥{{paint.price}}起/标准面
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="title">标准面</div>
+                    <div>
+                         <span class="card weui-badge selected"
+                               v-for="row in selectedPaintSurfaces">
+                            {{row.name}}
+                            <br>
+                            ￥{{getPaintSurfacePrice(row)}}
+                        </span>
+                    </div>
+                </div>
+
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.container -->
+    </div>
+
+    <div class="row tabbar">
+        <div class="col-xs-8 total">
+            <span>合计：</span>
+            <span class="main-text-color">￥{{getFinalTotal() | price}}</span>
+        </div>
+        <div class="col-xs-4 padding-none">
+            <button type="button" class="btn btn-flat submit-order main-btn" @click="submit">去结算</button>
+        </div>
+    </div>
+    <aside th:replace="wechat/common/aside"></aside>
+    <!-- /.content-wrapper -->
+</div>
+<!-- ./wrapper -->
+<footer th:replace="wechat/common/footer_statics"></footer>
+<script th:src="@{/static/js/wechat/sheet-metal-paint/new-select-product.js}"></script>
+</body>
+</html>
