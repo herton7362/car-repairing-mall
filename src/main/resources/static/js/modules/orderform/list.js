@@ -256,6 +256,13 @@ require(['jquery', 'vue', 'messager', 'utils'], function($, Vue, messager, utils
                             name: data.shop.name,
                             detailAddress: data.shop.address
                         };
+                        data.member = {name: null};
+                        $.ajax({
+                            url: '/api/member/' + data.memberId,
+                            success: function (member) {
+                                data.member = member;
+                            }
+                        })
                         self.formDetail.form = data;
                         self.formDetail.modal.$instance.open();
                     }

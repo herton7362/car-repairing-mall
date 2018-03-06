@@ -12,8 +12,8 @@ import java.util.List;
 @MappedSuperclass
 public abstract class BaseOrderForm<T extends BaseOrderItem> extends BaseEntity {
     @ApiModelProperty(value = "会员")
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Member member;
+    @Column(length = 36)
+    private String memberId;
     @ApiModelProperty(value = "优惠券")
     @ManyToOne(fetch = FetchType.EAGER)
     private Coupon coupon;
@@ -48,12 +48,12 @@ public abstract class BaseOrderForm<T extends BaseOrderItem> extends BaseEntity 
     @Column(length = 500)
     private String applyRejectRemark;
 
-    public Member getMember() {
-        return member;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
     public Coupon getCoupon() {

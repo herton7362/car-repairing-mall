@@ -14,7 +14,7 @@ require(['jquery', 'vue', 'utils', 'weui', 'messager'], function ($, Vue, utils,
                 items: [],
                 deliverToAddress: null,
                 remark: null,
-                member: null,
+                memberId: null,
                 coupon: {amount: 0}
             },
             member: {},
@@ -274,7 +274,7 @@ require(['jquery', 'vue', 'utils', 'weui', 'messager'], function ($, Vue, utils,
                         contentType: 'application/json',
                         data: JSON.stringify($.extend(self.orderForm,{
                             status: 'UN_PAY', // 下单未支付
-                            member: self.member,
+                            memberId: self.member.id,
                             shop: self.selectedShop,
                             paymentType: self.paymentType,
                             cash: self.account.cash,

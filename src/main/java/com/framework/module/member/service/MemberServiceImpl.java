@@ -31,6 +31,7 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
     private MemberRepository repository;
     private OauthClientDetailsService oauthClientDetailsService;
     private OperationRecordService operationRecordService;
+    private MemberRepository memberRepository;
 
     @Override
     public Member save(Member member) throws Exception {
@@ -149,7 +150,7 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
 
     @SuppressWarnings("unchecked")
     public Member calculateMemberAccountAfterConsume(BaseOrderForm orderForm) {
-        Member member = orderForm.getMember();
+        Member member = memberRepository.findOne(orderForm.getMemberId());
         Integer productPoints = 0;
         List<BaseOrderItem> items = orderForm.getItems();
         for (BaseOrderItem orderItem : items) {
@@ -191,10 +192,12 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
     public MemberServiceImpl(
             MemberRepository repository,
             OauthClientDetailsService oauthClientDetailsService,
-            OperationRecordService operationRecordService
+            OperationRecordService operationRecordService,
+            MemberRepository memberRepository
     ) {
         this.repository = repository;
         this.oauthClientDetailsService = oauthClientDetailsService;
         this.operationRecordService = operationRecordService;
+        this.memberRepository = memberRepository;
     }
 }

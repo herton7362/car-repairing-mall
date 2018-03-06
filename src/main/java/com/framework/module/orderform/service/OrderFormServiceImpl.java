@@ -53,7 +53,7 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
 
     @Override
     public OrderForm makeOrder(OrderForm orderForm) throws Exception {
-        Member member = orderForm.getMember();
+        Member member = memberService.findOne(orderForm.getMemberId());
         if(member == null) {
             throw new BusinessException("下单账户未找到");
         }
@@ -82,7 +82,7 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
      * @param orderForm 订单
      */
     private void rejectModifyMemberAccount(OrderForm orderForm) throws Exception {
-        Member member = orderForm.getMember();
+        Member member = memberService.findOne(orderForm.getMemberId());
         Integer productPoints = 0;
         for (OrderItem orderItem : orderForm.getItems()) {
             productPoints += orderItem.getProduct().getPoints();
@@ -121,7 +121,7 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
         orderForm.setPaymentStatus(OrderForm.PaymentStatus.PAYED);
         final OrderForm newOrderForm = orderFormRepository.save(orderForm);
         memberService.consumeModifyMemberAccount(newOrderForm);
-        recordConsume(orderForm.getMember(), orderForm.getCash(), orderForm.getBalance(), orderForm.getPoint(), orderForm.getItems());
+        recordConsume(memberService.findOne(orderForm.getMemberId()), orderForm.getCash(), orderForm.getBalance(), orderForm.getPoint(), orderForm.getItems());
         return newOrderForm;
     }
 
@@ -163,7 +163,7 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
                 && OrderForm.PaymentType.IN_SHOP != orderForm.getPaymentType()) {
             throw new BusinessException("订单状态不正确");
         }
-        if(!UserThread.getInstance().get().getId().equals(orderForm.getMember().getId()) &&
+        if(!UserThread.getInstance().get().getId().equals(orderForm.getMemberId()) &&
                 !(UserThread.getInstance().get() instanceof Admin)) {
             throw new BusinessException("当前会员无权操作此订单");
         }
@@ -184,7 +184,7 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
                 && OrderForm.OrderStatus.RECEIVED != orderForm.getStatus()) {
             throw new BusinessException("订单状态不正确");
         }
-        if(!MemberThread.getInstance().get().getId().equals(orderForm.getMember().getId())) {
+        if(!MemberThread.getInstance().get().getId().equals(orderForm.getMemberId())) {
             throw new BusinessException("当前会员无权操作此订单");
         }
         orderForm.setStatus(OrderForm.OrderStatus.APPLY_REJECTED);
@@ -289,7 +289,7 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
         }
 
         if(orderForm.getCoupon() != null && StringUtils.isNotBlank(orderForm.getCoupon().getId())) {
-            actualTotalAmount = new BigDecimal(couponService.useCoupon(orderForm.getCoupon().getId(), orderForm.getMember().getId(), actualTotalAmount.doubleValue()));
+            actualTotalAmount = new BigDecimal(couponService.useCoupon(orderForm.getCoupon().getId(), orderForm.getMemberId(), actualTotalAmount.doubleValue()));
         } else {
             orderForm.setCoupon(null);
         }
