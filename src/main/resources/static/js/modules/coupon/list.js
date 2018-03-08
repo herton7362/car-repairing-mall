@@ -1,5 +1,5 @@
 require(['jquery', 'vue', 'utils'], function($, Vue, utils) {
-    new Vue({
+    var vue = new Vue({
         el: '#content',
         data: {
             crudgrid: {
@@ -9,7 +9,7 @@ require(['jquery', 'vue', 'utils'], function($, Vue, utils) {
                 columns: [
                     {field: 'clientId', title: '所属系统', formatter: function(value) {
                         var result;
-                        $.each(self.client.data, function () {
+                        $.each(vue.client.data, function () {
                             if(value === this.id) {
                                 result = this.name;
                             }
