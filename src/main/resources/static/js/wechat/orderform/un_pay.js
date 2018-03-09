@@ -127,18 +127,37 @@ require(['jquery', 'vue', 'utils', 'weui', 'messager'], function ($, Vue, utils,
                         point: self.account.point
                     })),
                     success: function (data) {
-                        var onJavascriptBridgeReady = function () {
-                            WebViewJavascriptBridge.callHandler(
-                                'wechatpay'
-                                , {'data': data}
-                                , function(responseData) {
+                        function setupWebViewJavascriptBridge(callback) {
+                            var bridge = window.WebViewJavascriptBridge || window.WKWebViewJavascriptBridge;
+                            if (bridge) { return callback(bridge); }
+                            var callbacks = window.WVJBCallbacks || window.WKWVJBCallbacks;
+                            if (callbacks) { return callbacks.push(callback); }
+                            window.WVJBCallbacks = window.WKWVJBCallbacks = [callback];
+                            if (window.WKWebViewJavascriptBridge) {
+                                //for https://github.com/Lision/WKWebViewJavascriptBridge
+                                window.webkit.messageHandlers.iOS_Native_InjectJavascript.postMessage(null);
+                            } else {
+                                //for https://github.com/marcuswestin/WebViewJavascriptBridge
+                                var WVJBIframe = document.createElement('iframe');
+                                WVJBIframe.style.display = 'none';
+                                WVJBIframe.src = 'https://__bridge_loaded__';
+                                document.documentElement.appendChild(WVJBIframe);
+                                setTimeout(function() { document.documentElement.removeChild(WVJBIframe) }, 0);
+                            }
+                        }
+
+                        setupWebViewJavascriptBridge(function(bridge) {
+                            /* Initialize your app here */
+                            bridge.callHandler('wechatpay', JSON.stringify(data), function responseCallback(responseData) {
+                                responseData = eval('('+responseData+')');
+                                if(responseData.result === 'ok') {
                                     $.ajax({
                                         url: utils.patchUrl('/api/orderForm/pay'),
                                         contentType: 'application/json',
-                                        data: JSON.stringify($.extend(this.orderForm, {
-                                            cash: this.account.cash,
-                                            balance: this.account.balance,
-                                            point: this.account.point
+                                        data: JSON.stringify($.extend(self.orderForm, {
+                                            cash: self.account.cash,
+                                            balance: self.account.balance,
+                                            point: self.account.point
                                         })),
                                         type: 'POST',
                                         success: function() {
@@ -148,19 +167,11 @@ require(['jquery', 'vue', 'utils', 'weui', 'messager'], function ($, Vue, utils,
                                             }, 1000);
                                         }
                                     })
+                                } else {
+                                    messager.bubble("支付失败", 'error');
                                 }
-                            );
-                        }
-                        if (window.WebViewJavascriptBridge) {
-                            //do your work here
-                            onJavascriptBridgeReady();
-                        } else {
-                            document.addEventListener(
-                                'WebViewJavascriptBridgeReady'
-                                , onJavascriptBridgeReady,
-                                false
-                            );
-                        }
+                            });
+                        });
                     }
                 });
             }
