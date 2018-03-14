@@ -71,7 +71,7 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
         items.forEach(newOrderForm :: addItem);
         // 修改账户余额
         if(OrderForm.OrderStatus.PAYED == orderForm.getStatus()) {
-            memberService.consumeModifyMemberAccount(orderForm);
+            memberService.consumeModifyMemberAccount(member, orderForm);
             recordConsume(member, orderForm.getCash(), orderForm.getBalance(), orderForm.getPoint(), orderForm.getItems());
         }
         return orderForm;
@@ -119,9 +119,13 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
             orderForm.setStatus(OrderForm.OrderStatus.PAYED);
         }
         orderForm.setPaymentStatus(OrderForm.PaymentStatus.PAYED);
+        if(orderForm.getDeliverToAddress() != null && StringUtils.isBlank(orderForm.getDeliverToAddress().getId())) {
+            orderForm.setDeliverToAddress(null);
+        }
         final OrderForm newOrderForm = orderFormRepository.save(orderForm);
-        memberService.consumeModifyMemberAccount(newOrderForm);
-        recordConsume(memberService.findOne(orderForm.getMemberId()), orderForm.getCash(), orderForm.getBalance(), orderForm.getPoint(), orderForm.getItems());
+        Member member = memberService.findOne(orderForm.getMemberId());
+        memberService.consumeModifyMemberAccount(member, newOrderForm);
+        recordConsume(member, orderForm.getCash(), orderForm.getBalance(), orderForm.getPoint(), orderForm.getItems());
         return newOrderForm;
     }
 
@@ -142,11 +146,19 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
         orderForm.getItems().forEach(orderItem -> {
             Sku sku = orderItem.getSku();
             if(sku!= null) {
-                sku.setStockCount(sku.getStockCount() - 1);
+                Long count = 0L;
+                if(sku.getStockCount() != null) {
+                    count = sku.getStockCount();
+                }
+                sku.setStockCount(count - 1);
                 skuRepository.save(sku);
             } else {
                 Product product = orderItem.getProduct();
-                product.setStockCount(product.getStockCount() - 1);
+                Long count = 0L;
+                if(product.getStockCount() != null) {
+                    count = product.getStockCount();
+                }
+                product.setStockCount(count - 1);
                 productRepository.save(product);
             }
         });

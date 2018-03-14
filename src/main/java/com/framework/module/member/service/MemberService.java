@@ -51,7 +51,7 @@ public interface MemberService extends CrudService<Member> {
      * 消费修改账户余额
      * @param orderForm 订单
      */
-    void consumeModifyMemberAccount(BaseOrderForm orderForm) throws Exception;
+    void consumeModifyMemberAccount(Member member, BaseOrderForm orderForm) throws Exception;
 
     /**
      * 获取可用优惠券数量

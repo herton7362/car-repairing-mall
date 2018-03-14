@@ -28,10 +28,9 @@ import java.util.List;
 @Component
 @Transactional
 public class MemberServiceImpl extends AbstractCrudService<Member> implements MemberService {
-    private MemberRepository repository;
-    private OauthClientDetailsService oauthClientDetailsService;
-    private OperationRecordService operationRecordService;
-    private MemberRepository memberRepository;
+    private final MemberRepository repository;
+    private final OauthClientDetailsService oauthClientDetailsService;
+    private final OperationRecordService operationRecordService;
 
     @Override
     public Member save(Member member) throws Exception {
@@ -149,8 +148,7 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
     }
 
     @SuppressWarnings("unchecked")
-    public Member calculateMemberAccountAfterConsume(BaseOrderForm orderForm) {
-        Member member = memberRepository.findOne(orderForm.getMemberId());
+    public Member calculateMemberAccountAfterConsume(Member member, BaseOrderForm orderForm) {
         Integer productPoints = 0;
         List<BaseOrderItem> items = orderForm.getItems();
         for (BaseOrderItem orderItem : items) {
@@ -164,8 +162,8 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
     }
 
 
-    public void consumeModifyMemberAccount(BaseOrderForm orderForm) throws Exception {
-        Member member =calculateMemberAccountAfterConsume(orderForm);
+    public void consumeModifyMemberAccount(Member member, BaseOrderForm orderForm) throws Exception {
+        member =calculateMemberAccountAfterConsume(member, orderForm);
         repository.save(member);
     }
 
@@ -192,12 +190,10 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
     public MemberServiceImpl(
             MemberRepository repository,
             OauthClientDetailsService oauthClientDetailsService,
-            OperationRecordService operationRecordService,
-            MemberRepository memberRepository
+            OperationRecordService operationRecordService
     ) {
         this.repository = repository;
         this.oauthClientDetailsService = oauthClientDetailsService;
         this.operationRecordService = operationRecordService;
-        this.memberRepository = memberRepository;
     }
 }

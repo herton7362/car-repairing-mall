@@ -46,11 +46,18 @@ define([
                     data: {
                         sort: 'sortNumber',
                         order: 'asc',
-                        member: {
-                            id: this.member.id
-                        }
+                        memberId: this.member.id
                     },
                     success: function(data) {
+                        $.each(data.content, function (i, d) {
+                            this.vehicleCategory = {parent:{logo:{}}};
+                            $.ajax({
+                                url: utils.patchUrl('/api/vehicleCategory/' + this.vehicleCategoryId),
+                                success: function (data) {
+                                    d.vehicleCategory = data;
+                                }
+                            })
+                        })
                         self.userVehicles = data.content;
                         if(!self.userVehicles || self.userVehicles.length <= 0) {
                             self.vehicleSelector.$instance.open();
@@ -91,8 +98,8 @@ define([
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        member: self.member,
-                        vehicleCategory: category,
+                        memberId: self.member.id,
+                        vehicleCategoryId: category.id,
                         isDefault: true
                     }),
                     success: function (vehicle) {
@@ -111,7 +118,7 @@ define([
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify($.extend(vehicle, {
-                        member: self.member,
+                        memberId: self.member.id,
                         isDefault: true
                     })),
                     success: function () {
