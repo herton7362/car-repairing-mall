@@ -2,6 +2,10 @@
     display: none;
 }
 
+.js_dialog {
+    z-index: 9094;
+}
+
 .h5-layout .weui-cells p {
     margin: 0;
 }

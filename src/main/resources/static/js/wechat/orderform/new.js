@@ -289,6 +289,20 @@ require(['jquery', 'vue', 'utils', 'weui', 'messager'], function ($, Vue, utils,
                         this.id = null;
                     });
                     self.account.cash = self.getFinalTotal();
+                    function pay(orderForm) {
+                        $.ajax({
+                            url: utils.patchUrl('/api/orderForm/pay'),
+                            contentType: 'application/json',
+                            data: JSON.stringify(orderForm),
+                            type: 'POST',
+                            success: function() {
+                                messager.bubble("支付成功", 'success');
+                                setTimeout(function () {
+                                    window.location.href = utils.patchUrlPrefixUrl('/wechat/orderform/list?page=all');
+                                }, 1000);
+                            }
+                        })
+                    }
                     $.ajax({
                         url: utils.patchUrl('/api/orderForm/makeOrder'),
                         contentType: 'application/json',
@@ -303,6 +317,8 @@ require(['jquery', 'vue', 'utils', 'weui', 'messager'], function ($, Vue, utils,
                         })),
                         type: 'POST',
                         success: function(orderForm) {
+                            orderForm.balance = 0;
+                            orderForm.point = 0;
                             messager.bubble("操作成功");
                             setTimeout(function () {
                                 if(utils.getQueryString("id")) {
@@ -310,11 +326,19 @@ require(['jquery', 'vue', 'utils', 'weui', 'messager'], function ($, Vue, utils,
                                         url: utils.patchUrl('/api/cart/' + utils.getQueryString("id")),
                                         type: 'DELETE',
                                         success: function () {
-                                            window.location.href = utils.patchUrlPrefixUrl('/wechat/orderform/un_pay?id=' + orderForm.id);
+                                            if('IN_SHOP' === self.orderForm.paymentType) {
+                                                pay(orderForm);
+                                            } else {
+                                                window.location.href = utils.patchUrlPrefixUrl('/wechat/orderform/un_pay?id=' + orderForm.id);
+                                            }
                                         }
                                     })
                                 } else {
-                                    window.location.href = utils.patchUrlPrefixUrl('/wechat/orderform/un_pay?id=' + orderForm.id);
+                                    if('IN_SHOP' === self.orderForm.paymentType) {
+                                        pay(orderForm);
+                                    } else {
+                                        window.location.href = utils.patchUrlPrefixUrl('/wechat/orderform/un_pay?id=' + orderForm.id);
+                                    }
                                 }
                             }, 1000);
                         }

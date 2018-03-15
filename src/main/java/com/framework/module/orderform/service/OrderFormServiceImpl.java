@@ -107,10 +107,11 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
 
     @Override
     public OrderForm pay(OrderForm orderForm) throws Exception {
-        if(orderForm == null) {
+        OrderForm oldForm = orderFormRepository.findOne(orderForm.getId());
+        if(oldForm == null) {
             throw new BusinessException("订单未找到");
         }
-        if(OrderForm.PaymentStatus.UN_PAY != orderForm.getPaymentStatus()) {
+        if(OrderForm.PaymentStatus.UN_PAY != oldForm.getPaymentStatus()) {
             throw new BusinessException("订单状态不正确");
         }
         orderForm.getItems().forEach(new ItemSetter(orderForm));
@@ -319,7 +320,7 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
      */
     private void recordConsume(Member member, Double cash, Double balance, Integer point, List<OrderItem> items) throws Exception {
         OperationRecord rechargeRecord = new OperationRecord();
-        rechargeRecord.setMember(member);
+        rechargeRecord.setMemberId(member.getId());
         rechargeRecord.setBusinessType(OperationRecord.BusinessType.CONSUME.name());
         rechargeRecord.setClientId(MemberThread.getInstance().getClientId());
         rechargeRecord.setIpAddress(MemberThread.getInstance().getIpAddress());
@@ -345,7 +346,7 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
      */
     private void recordReject(Member member, Double cash, Double balance, Integer point, OrderForm orderForm) throws Exception {
         OperationRecord rechargeRecord = new OperationRecord();
-        rechargeRecord.setMember(member);
+        rechargeRecord.setMemberId(member.getId());
         rechargeRecord.setBusinessType(OperationRecord.BusinessType.REJECT.name());
         rechargeRecord.setClientId(MemberThread.getInstance().getClientId());
         rechargeRecord.setIpAddress(MemberThread.getInstance().getIpAddress());

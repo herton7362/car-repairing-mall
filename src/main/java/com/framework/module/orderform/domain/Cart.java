@@ -17,18 +17,18 @@ import java.util.List;
 @ApiModel("购物车")
 public class Cart extends BaseEntity {
     @ApiModelProperty(value = "会员")
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Member member;
+    @Column(length = 36)
+    private String memberId;
     @ApiModelProperty(value = "购物车条目")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "cart")
     private List<CartItem> items;
 
-    public Member getMember() {
-        return member;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public void setMember(Member member) {
-        this.member = member;
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 
     public List<CartItem> getItems() {

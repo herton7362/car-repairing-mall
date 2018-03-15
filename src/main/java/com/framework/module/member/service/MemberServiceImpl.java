@@ -79,7 +79,7 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
      */
     private void record(Member member, String content, OperationRecord.BusinessType businessType) throws Exception {
         OperationRecord rechargeRecord = new OperationRecord();
-        rechargeRecord.setMember(member);
+        rechargeRecord.setMemberId(member.getId());
         rechargeRecord.setBusinessType(businessType.name());
         rechargeRecord.setClientId(MemberThread.getInstance().getClientId());
         rechargeRecord.setIpAddress(MemberThread.getInstance().getIpAddress());
