@@ -82,7 +82,7 @@ public class MemberClientServiceImpl extends AbstractCrudClientService<Member> i
 
     @Override
     public void consumeModifyMemberAccount(Member member, BaseOrderForm orderForm) throws Exception {
-        MemberServiceImpl memberService = new MemberServiceImpl(null, null,null);
+        MemberServiceImpl memberService = new MemberServiceImpl(null, null,null, null);
         member = memberService.calculateMemberAccountAfterConsume(member, orderForm);
         save(member);
     }

@@ -23,7 +23,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Transactional
@@ -31,6 +33,7 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
     private final MemberRepository repository;
     private final OauthClientDetailsService oauthClientDetailsService;
     private final OperationRecordService operationRecordService;
+    private final MemberCouponService memberCouponService;
 
     @Override
     public Member save(Member member) throws Exception {
@@ -169,11 +172,15 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
 
     @Override
     public Integer getAvailableCouponCount(String memberId) throws Exception {
-        Member member = findOne(memberId);
+        Map<String, String[]> params = new HashMap<>();
+        params.put("memberId", new String[]{memberId});
+        List<MemberCoupon> coupons = memberCouponService.findAll(params);
         Integer count = 0;
-        for (MemberCoupon memberCoupon : member.getCoupons()) {
-            if(!memberCoupon.getUsed()) {
-                count ++;
+        if(coupons != null) {
+            for (MemberCoupon memberCoupon : coupons) {
+                if(!memberCoupon.getUsed()) {
+                    count ++;
+                }
             }
         }
         return count;
@@ -190,10 +197,12 @@ public class MemberServiceImpl extends AbstractCrudService<Member> implements Me
     public MemberServiceImpl(
             MemberRepository repository,
             OauthClientDetailsService oauthClientDetailsService,
-            OperationRecordService operationRecordService
+            OperationRecordService operationRecordService,
+            MemberCouponService memberCouponService
     ) {
         this.repository = repository;
         this.oauthClientDetailsService = oauthClientDetailsService;
         this.operationRecordService = operationRecordService;
+        this.memberCouponService = memberCouponService;
     }
 }

@@ -5,6 +5,7 @@ import com.framework.module.marketing.domain.Coupon;
 import com.framework.module.marketing.service.CouponService;
 import com.framework.module.member.domain.Member;
 import com.framework.module.member.domain.MemberCoupon;
+import com.framework.module.member.service.MemberCouponService;
 import com.framework.module.member.service.MemberService;
 import com.kratos.common.AbstractCrudController;
 import com.kratos.common.CrudService;
@@ -17,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Api(value = "优惠券管理")
 @RestController
@@ -26,6 +29,7 @@ public class CouponController extends AbstractCrudController<Coupon> {
     private final CouponService couponService;
     private final OauthClientDetailsService oauthClientDetailsService;
     private final MemberService memberService;
+    private final MemberCouponService memberCouponService;
     @Override
     protected CrudService<Coupon> getService() {
         return couponService;
@@ -66,8 +70,10 @@ public class CouponController extends AbstractCrudController<Coupon> {
     @ApiOperation(value="获取当前用户优惠券")
     @RequestMapping(value = "/member/{memberId}", method = RequestMethod.GET)
     public ResponseEntity<List<MemberCoupon>> getMemberCoupons(@PathVariable String memberId) throws Exception {
-        Member member = memberService.findOne(memberId);
-        return new ResponseEntity<>(member.getCoupons(), HttpStatus.OK);
+        Map<String, String[]> params = new HashMap<>();
+        params.put("memberId", new String[]{memberId});
+        List<MemberCoupon> memberCoupons = memberCouponService.findAll(params);
+        return new ResponseEntity<>(memberCoupons, HttpStatus.OK);
     }
 
     /**
@@ -94,10 +100,12 @@ public class CouponController extends AbstractCrudController<Coupon> {
     public CouponController(
             CouponService couponService,
             OauthClientDetailsService oauthClientDetailsService,
-            MemberService memberService
+            MemberService memberService,
+            MemberCouponService memberCouponService
     ) {
         this.couponService = couponService;
         this.oauthClientDetailsService = oauthClientDetailsService;
         this.memberService = memberService;
+        this.memberCouponService = memberCouponService;
     }
 }

@@ -1,6 +1,8 @@
 package com.framework.module.member.web;
 
 import com.framework.module.member.domain.Member;
+import com.framework.module.member.domain.MemberCoupon;
+import com.framework.module.member.service.MemberCouponService;
 import com.framework.module.member.service.MemberService;
 import com.kratos.common.AbstractCrudController;
 import com.kratos.common.CrudService;
@@ -14,13 +16,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Api(value = "会员管理")
 @RestController
 @RequestMapping("/api/member")
 public class MemberController extends AbstractCrudController<Member> {
     private final MemberService memberService;
+    private final MemberCouponService memberCouponService;
     @Override
     protected CrudService<Member> getService() {
         return memberService;
@@ -62,10 +67,12 @@ public class MemberController extends AbstractCrudController<Member> {
     @ApiOperation(value="获取会员优惠卷")
     @RequestMapping(value = "/coupon/{memberId}", method = RequestMethod.GET)
     public ResponseEntity<List<CouponResult>> getCoupons(@PathVariable String memberId) throws Exception {
-        Member member = memberService.findOne(memberId);
+        Map<String, String[]> params = new HashMap<>();
+        params.put("memberId", new String[]{memberId});
+        List<MemberCoupon> memberCoupons = memberCouponService.findAll(params);
         final List<CouponResult> coupons = new ArrayList<>();
-        if(member.getCoupons() != null) {
-            member.getCoupons().forEach(memberCoupon -> {
+        if(memberCoupons != null) {
+            memberCoupons.forEach(memberCoupon -> {
                 CouponResult couponResult = new CouponResult();
                 BeanUtils.copyProperties(memberCoupon.getCoupon(), couponResult);
                 coupons.add(couponResult);
@@ -85,8 +92,10 @@ public class MemberController extends AbstractCrudController<Member> {
 
     @Autowired
     public MemberController(
-            MemberService memberService
+            MemberService memberService,
+            MemberCouponService memberCouponService
     ) {
         this.memberService = memberService;
+        this.memberCouponService = memberCouponService;
     }
 }
