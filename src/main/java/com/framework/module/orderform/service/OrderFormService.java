@@ -85,4 +85,10 @@ public interface OrderFormService extends CrudService<OrderForm> {
      * @throws Exception {@link com.kratos.exceptions.BusinessException}逻辑异常
      */
     void validAccount(BaseOrderForm orderForm) throws Exception;
+
+    /**
+     * 已支付
+     * @param outTradeNo 订单id
+     */
+    void payed(String outTradeNo) throws Exception;
 }

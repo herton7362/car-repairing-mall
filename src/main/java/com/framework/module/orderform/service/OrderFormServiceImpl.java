@@ -313,6 +313,38 @@ public class OrderFormServiceImpl extends AbstractCrudService<OrderForm> impleme
         }
     }
 
+    @Override
+    public void payed(String outTradeNo) throws Exception {
+        Map<String, String[]> param = new HashMap<>();
+        param.put("orderNumber", new String[]{outTradeNo});
+        List<OrderForm> orderForms = findAll(param);
+        if(orderForms != null && !orderForms.isEmpty()) {
+            OrderForm orderForm = orderForms.get(0);
+            orderForm.setStatus(OrderForm.OrderStatus.PAYED);
+            orderForm.setPaymentStatus(OrderForm.PaymentStatus.PAYED);
+            orderFormRepository.save(orderForm);
+            consumeModifyMemberAccount(orderForm);
+        }
+    }
+
+    /**
+     * 消费修改账户余额
+     * @param orderForm 订单
+     */
+    private void consumeModifyMemberAccount(OrderForm orderForm) throws Exception {
+        Member member = memberService.findOne(orderForm.getMemberId());
+        Integer productPoints = 0;
+        for (OrderItem orderItem : orderForm.getItems()) {
+            productPoints += orderItem.getProduct().getPoints();
+        }
+        member.setSalePoint(subtractNumber(member.getSalePoint(), orderForm.getPoint()));
+        member.setPoint(increaseNumber(member.getPoint(), productPoints));
+        member.setSalePoint(increaseNumber(member.getSalePoint(), productPoints));
+        member.setBalance(subtractMoney(member.getBalance(), orderForm.getBalance()));
+        memberService.save(member);
+        recordConsume(member, orderForm.getCash(), orderForm.getBalance(), orderForm.getPoint(), orderForm.getItems());
+    }
+
     /**
      * 记录消费记录
      * @param member 会员
