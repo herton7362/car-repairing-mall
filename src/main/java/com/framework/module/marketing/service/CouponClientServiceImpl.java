@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.util.List;
 
-@Component("couponService")
 @Transactional
 public class CouponClientServiceImpl extends AbstractCrudClientService<Coupon> implements CouponService {
     private final OAuth2Properties oAuth2Properties;
